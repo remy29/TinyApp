@@ -39,7 +39,7 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 }); */
 
-app.get("/urls", (req, res) => { // Line 27-39 are used to set up how the server reacts to get requests. 
+app.get("/urls", (req, res) => { // Line 42-54 are used to set up how the server reacts to get requests. 
   const templateVars = { urls: urlDatabase }; //They use ESJ to render their respective esj files using the template variables assigned to them
   res.render("urls_index", templateVars);
 });
@@ -53,7 +53,7 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-app.get("/u/:shortURL", (req, res) => {
+app.get("/u/:shortURL", (req, res) => { // this app.get is responsilbe for making sure the shortURL can be used to redirect to the long URL
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
