@@ -58,13 +58,13 @@ app.get("/u/:shortURL", (req, res) => { // this app.get is responsilbe for makin
   res.redirect(longURL);
 });
 
-app.post("/urls", (req, res) => {
-  const rShortURL = generateRandomString();
-  urlDatabase[rShortURL] = req.body.longURL;
-  res.redirect(302, `/urls/${rShortURL}`)
+app.post("/urls", (req, res) => { // responds to the post requests made by the form in /urls/new
+  const rShortURL = generateRandomString(); // creates a new random short url
+  urlDatabase[rShortURL] = req.body.longURL; // updates database
+  res.redirect(302, `/urls/${rShortURL}`) // redirects to the result
 });
 
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`TinyApp listening on port ${PORT}!`);
 });
