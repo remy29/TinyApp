@@ -12,7 +12,7 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-const generateRandomString = function() {
+const generateRandomString = function() {  // used to create random 6 character string. creates random index value and pushes character associated to it to a result
   let i = 0;
   let result = "";
   let charset = "0123456789abcdefghijklmnopqrstuvwxyz"
@@ -54,9 +54,9 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  const shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
-  res.send(generateRandomString());// Respond with 'Ok' (we will replace this)
+  const rShortURL = generateRandomString();
+  urlDatabase[rShortURL] = req.body.longURL;
+  res.redirect(`/urls/${rShortURL}`)
 });
 
 
