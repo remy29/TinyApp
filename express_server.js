@@ -11,6 +11,21 @@ const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+const generateRandomString = function() {
+  let i = 0;
+  let result = "";
+  let charset = "0123456789abcdefghijklmnopqrstuvwxyz"
+  do {
+    let y = Math.floor(Math.random() * 36);
+    result += charset[y];
+    i++;
+  }
+  while (i > 6) 
+  return result;
+};
+
+
 // Lines 14-25 are code used for demonstration of .get functionality
 /* app.get("/", (req, res) => {
   res.send("Hello!");
