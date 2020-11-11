@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const morgan = require('morgan');
 
-app.use(morgan());
+app.use(morgan("tiny"));
 app.use(bodyParser.urlencoded({extended: true})); //code on lines 7-9 are used to init middleware dependencies
 app.use(cookieParser()); 
 app.set("view engine", "ejs"); 
@@ -14,6 +14,14 @@ const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+const userDB = { 
+  "userRandomID": { //exists for example and testing reasons
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+}
 
 const generateRandomString = function() {  // used to create random 6 character string. creates random index value and pushes character associated to it to a result
   let i = 0;
@@ -48,7 +56,7 @@ app.get("/register", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"],};
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], userDB: req.cookies["username"],};
   res.render("urls_show", templateVars);
 });
 
@@ -69,7 +77,18 @@ app.post("/login", (req, res) => { // posts result of login form submit into coo
 });
 
 app.post("/logout", (req, res) => { // posts result of login form submit into cookie
-  res.clearCookie("username");
+  res.clearCookie("user_id");
+  res.redirect(`/urls`);
+});
+
+app.post("/register", (req, res) => { // posts result of login form submit into cookie
+  const newID = generateRandomString();
+  userDB[newID] = {
+    id: newID,
+    email: req.body.email,
+    password: req.body.password
+  }
+  res.cookie("user_id", newID)
   res.redirect(`/urls`);
 });
 
