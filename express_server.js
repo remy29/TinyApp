@@ -26,14 +26,13 @@ const generateRandomString = function() {  // used to create random 6 character 
   return result;
 };
 
-app.get("/", (req, res) => { // series of .get methods to render our various pages at their paths, w/ templatevars
+app.get("/urls", (req, res) => { // series of .get methods to render our various pages at their paths, w/ templatevars
   const templateVars = { urls: urlDatabase, username: req.cookies["username"]}; 
   res.render("urls_index", templateVars);
 });
 
-app.get("/urls", (req, res) => {  
-  const templateVars = { urls: urlDatabase, username: req.cookies["username"],}; 
-  res.render("urls_index", templateVars);
+app.get("/", (req, res) => {  
+  res.redirect("/urls")
 });
 
 app.get("/urls/new", (req, res) => {
@@ -53,28 +52,28 @@ app.get("/u/:shortURL", (req, res) => { // this app.get is responsilbe for makin
 
 app.post("/urls", (req, res) => { // responds to the post requests made by the form in /urls/new
   const rShortURL = generateRandomString(); // creates a new random short url
-  urlDatabase[rShortURL] = `http://${req.body.longURL}`; // updates database
+  urlDatabase[rShortURL] = req.body.longURL; // updates database
   res.redirect(302, `/urls/${rShortURL}`); // redirects to the result
 });
 
 app.post("/login", (req, res) => { // posts result of login form submit into cookie
   res.cookie("username", req.body.username);
-  res.redirect(302, `/urls`);
+  res.redirect(`/urls`);
 });
 
 app.post("/logout", (req, res) => { // posts result of login form submit into cookie
   res.clearCookie("username");
-  res.redirect(302, `/urls`);
+  res.redirect(`/urls`);
 });
 
 app.post("/urls/:shortURL", (req, res) => { //responds to the post request made by delete buttons
-  urlDatabase[req.params.shortURL] = `http://${req.body.newURL}`;
-  res.redirect(302, `/urls`);
+  urlDatabase[req.params.shortURL] = req.body.newURL;
+  res.redirect(`/urls`);
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => { //responds to the post request made by new url form
   delete urlDatabase[req.params.shortURL];
-  res.redirect(302, `/urls`);
+  res.redirect(`/urls`);
 });
 
 app.listen(PORT, () => {
