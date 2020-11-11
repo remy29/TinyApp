@@ -26,20 +26,6 @@ const generateRandomString = function() {  // used to create random 6 character 
   return result;
 };
 
-
-// code used for demonstration of .get functionality
-/* app.get("/", (req, res) => {
-  res.send("Hello!");
-});
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-}); */
-
 app.get("/", (req, res) => { // series of .get methods to render our various pages at their paths, w/ templatevars
   const templateVars = { urls: urlDatabase, username: req.cookies["username"]}; 
   res.render("urls_index", templateVars);
@@ -51,7 +37,8 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = { username: req.cookies["username"] };
+  res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
@@ -66,7 +53,7 @@ app.get("/u/:shortURL", (req, res) => { // this app.get is responsilbe for makin
 
 app.post("/urls", (req, res) => { // responds to the post requests made by the form in /urls/new
   const rShortURL = generateRandomString(); // creates a new random short url
-  urlDatabase[rShortURL] = req.body.longURL; // updates database
+  urlDatabase[rShortURL] = `http://${req.body.longURL}`; // updates database
   res.redirect(302, `/urls/${rShortURL}`); // redirects to the result
 });
 
@@ -75,8 +62,13 @@ app.post("/login", (req, res) => { // posts result of login form submit into coo
   res.redirect(302, `/urls`);
 });
 
+app.post("/logout", (req, res) => { // posts result of login form submit into cookie
+  res.clearCookie("username");
+  res.redirect(302, `/urls`);
+});
+
 app.post("/urls/:shortURL", (req, res) => { //responds to the post request made by delete buttons
-  urlDatabase[req.params.shortURL] = req.body.newURL;
+  urlDatabase[req.params.shortURL] = `http://${req.body.newURL}`;
   res.redirect(302, `/urls`);
 });
 
@@ -84,7 +76,6 @@ app.post("/urls/:shortURL/delete", (req, res) => { //responds to the post reques
   delete urlDatabase[req.params.shortURL];
   res.redirect(302, `/urls`);
 });
-
 
 app.listen(PORT, () => {
   console.log(`TinyApp listening on port ${PORT}!`);
