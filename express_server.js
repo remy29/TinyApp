@@ -37,7 +37,8 @@ const generateRandomString = function() {  // used to create random 6 character 
 };
 
 app.get("/urls", (req, res) => { // series of .get methods to render our various pages at their paths, w/ templatevars
-  const templateVars = { urls: urlDatabase, username: req.cookies["username"]}; 
+  const templateVars = { urls: urlDatabase, user: userDB[req.cookies["user_id"]]}; 
+  console.log(req.cookies["user_id"])
   res.render("urls_index", templateVars);
 });
 
@@ -46,17 +47,17 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  const templateVars = { username: req.cookies["username"] };
+  const templateVars = { user: userDB[req.cookies["user_id"]] };
   res.render("urls_new", templateVars);
 });
 
 app.get("/register", (req, res) => {
-  const templateVars = { username: req.cookies["username"] };
-  res.render("registration", templateVars);
+    const templateVars = { user: userDB[req.cookies["user_id"]] };
+    res.render("registration", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], userDB: req.cookies["username"],};
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: userDB[req.cookies["user_id"]]};
   res.render("urls_show", templateVars);
 });
 
