@@ -1,12 +1,12 @@
 const express = require("express");  //Lines 1-4 gives express_server.js access to all its required dependencies
 const app = express();
-const PORT = 8080; // default port 8080
+const PORT = 8080; 
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 
-app.use(bodyParser.urlencoded({extended: true})); // allows us to use the body-parser middle-ware to convert request body to readable string
-app.use(cookieParser())
-app.set("view engine", "ejs"); // allows us to use ESJ
+app.use(bodyParser.urlencoded({extended: true})); //code on lines 7-9 are used to init middleware dependencies
+app.use(cookieParser()); 
+app.set("view engine", "ejs"); 
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -40,13 +40,13 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 }); */
 
-app.get("/", (req, res) => {
-  const templateVars = { urls: urlDatabase, username: req.cookies["username"]}; //They use ESJ to render their respective esj files using the template variables assigned to them
+app.get("/", (req, res) => { // series of .get methods to render our various pages at their paths, w/ templatevars
+  const templateVars = { urls: urlDatabase, username: req.cookies["username"]}; 
   res.render("urls_index", templateVars);
 });
 
-app.get("/urls", (req, res) => { // Line 42-54 are used to set up how the server reacts to get requests.
-  const templateVars = { urls: urlDatabase, username: req.cookies["username"],}; //They use ESJ to render their respective esj files using the template variables assigned to them
+app.get("/urls", (req, res) => {  
+  const templateVars = { urls: urlDatabase, username: req.cookies["username"],}; 
   res.render("urls_index", templateVars);
 });
 
@@ -70,7 +70,7 @@ app.post("/urls", (req, res) => { // responds to the post requests made by the f
   res.redirect(302, `/urls/${rShortURL}`); // redirects to the result
 });
 
-app.post("/login", (req, res) => { 
+app.post("/login", (req, res) => { // posts result of login form submit into cookie
   res.cookie("username", req.body.username);
   res.redirect(302, `/urls`);
 });
