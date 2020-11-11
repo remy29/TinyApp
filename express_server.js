@@ -26,7 +26,7 @@ const generateRandomString = function() {  // used to create random 6 character 
 };
 
 
-// Lines 14-25 are code used for demonstration of .get functionality
+// code used for demonstration of .get functionality
 /* app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -38,6 +38,11 @@ app.get("/urls.json", (req, res) => {
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 }); */
+
+app.get("/", (req, res) => {
+  const templateVars = { urls: urlDatabase }; //They use ESJ to render their respective esj files using the template variables assigned to them
+  res.render("urls_index", templateVars);
+});
 
 app.get("/urls", (req, res) => { // Line 42-54 are used to set up how the server reacts to get requests.
   const templateVars = { urls: urlDatabase }; //They use ESJ to render their respective esj files using the template variables assigned to them
