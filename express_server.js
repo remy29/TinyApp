@@ -69,7 +69,7 @@ app.post("/urls/:shortURL", (req, res) => { //responds to the post request made 
   res.redirect(302, `/urls`);
 });
 
-app.post("/urls/:shortURL/delete", (req, res) => { //responds to the post request made by delete buttons
+app.post("/urls/:shortURL/delete", (req, res) => { //responds to the post request made by new url form
   delete urlDatabase[req.params.shortURL];
   res.redirect(302, `/urls`);
 });
