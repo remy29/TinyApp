@@ -64,10 +64,16 @@ app.post("/urls", (req, res) => { // responds to the post requests made by the f
   res.redirect(302, `/urls/${rShortURL}`); // redirects to the result
 });
 
+app.post("/urls/:shortURL", (req, res) => { //responds to the post request made by delete buttons
+  urlDatabase[req.params.shortURL] = req.body.newURL;
+  res.redirect(302, `/urls`);
+});
+
 app.post("/urls/:shortURL/delete", (req, res) => { //responds to the post request made by delete buttons
   delete urlDatabase[req.params.shortURL];
   res.redirect(302, `/urls`);
 });
+
 
 app.listen(PORT, () => {
   console.log(`TinyApp listening on port ${PORT}!`);
