@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 
 app.use(bodyParser.urlencoded({extended: true})); // allows us to use the body-parser middle-ware to convert request body to readable string
-
+app.use(cookieParser())
 app.set("view engine", "ejs"); // allows us to use ESJ
 
 const urlDatabase = {
@@ -41,12 +41,12 @@ app.get("/hello", (req, res) => {
 }); */
 
 app.get("/", (req, res) => {
-  const templateVars = { urls: urlDatabase }; //They use ESJ to render their respective esj files using the template variables assigned to them
+  const templateVars = { urls: urlDatabase, username: req.cookies["username"]}; //They use ESJ to render their respective esj files using the template variables assigned to them
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls", (req, res) => { // Line 42-54 are used to set up how the server reacts to get requests.
-  const templateVars = { urls: urlDatabase }; //They use ESJ to render their respective esj files using the template variables assigned to them
+  const templateVars = { urls: urlDatabase, username: req.cookies["username"],}; //They use ESJ to render their respective esj files using the template variables assigned to them
   res.render("urls_index", templateVars);
 });
 
@@ -55,7 +55,7 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"],};
   res.render("urls_show", templateVars);
 });
 
@@ -68,6 +68,11 @@ app.post("/urls", (req, res) => { // responds to the post requests made by the f
   const rShortURL = generateRandomString(); // creates a new random short url
   urlDatabase[rShortURL] = req.body.longURL; // updates database
   res.redirect(302, `/urls/${rShortURL}`); // redirects to the result
+});
+
+app.post("/login", (req, res) => { 
+  res.cookie("username", req.body.username);
+  res.redirect(302, `/urls`);
 });
 
 app.post("/urls/:shortURL", (req, res) => { //responds to the post request made by delete buttons
