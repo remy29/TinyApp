@@ -2,6 +2,7 @@ const express = require("express");  //Lines 1-4 gives express_server.js access 
 const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 
 app.use(bodyParser.urlencoded({extended: true})); // allows us to use the body-parser middle-ware to convert request body to readable string
 
