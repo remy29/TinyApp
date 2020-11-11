@@ -3,7 +3,9 @@ const app = express();
 const PORT = 8080; 
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const morgan = require('morgan');
 
+app.use(morgan());
 app.use(bodyParser.urlencoded({extended: true})); //code on lines 7-9 are used to init middleware dependencies
 app.use(cookieParser()); 
 app.set("view engine", "ejs"); 
