@@ -58,7 +58,12 @@ app.get("/urls", (req, res) => { // series of .get methods to render our various
 });
 
 app.get("/", (req, res) => {
-  res.redirect("/urls");
+  if(req.cookies["user_id"]) {
+    res.redirect("/urls");
+  }
+  else {
+    res.redirect("/register")
+  }
 });
 
 app.get("/urls/new", (req, res) => {
@@ -106,7 +111,7 @@ app.post("/login", (req, res) => { // posts result of login form submit into coo
   if (!foundUser) {
     return res.status(403).send('No user with that email found');
   } else if (foundUser.password !== req.body.password) {
-    return res.status(403).send('incorrect password');
+    return res.status(403).send('Incorrect password');
   }
     res.cookie('user_id', foundUser.id);
     res.redirect('/urls');
