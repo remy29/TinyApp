@@ -14,3 +14,13 @@ const urlDatabase = {
 };
 
 console.log(urlsForUser("abcd12"));
+
+app.get("/urls/:shortURL", (req, res) => {
+  if (req.cookies["user_id"] !== urlDatabase[req.params.shortURL]["userID"]) {
+    res.status(400).send(`User: ${userDB[req.cookies["user_id"]]} does not have access to this URL`)
+    res.redirect("/urls")
+  } else {
+    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"], user: userDB[req.cookies["user_id"]]};
+    res.render("urls_show", templateVars);
+  }
+});

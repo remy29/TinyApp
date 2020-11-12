@@ -95,8 +95,13 @@ app.get("/logout", (req, res) => { // posts result of login form submit into coo
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"], user: userDB[req.cookies["user_id"]]};
-  res.render("urls_show", templateVars);
+  const currentUser = req.cookies["user_id"]? "Current User": "Unregistered User";
+  if (!req.cookies["user_id"] || req.cookies["user_id"] !== urlDatabase[req.params.shortURL]["userID"]) {
+    return res.status(400).send(`${currentUser} does not have access to this URL`)
+  } else {
+    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"], user: userDB[req.cookies["user_id"]]};
+    res.render("urls_show", templateVars);
+  }
 });
 
 app.get("/u/:shortURL", (req, res) => { // this app.get is responsilbe for making sure the shortURL can be used to redirect to the long URL
