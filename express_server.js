@@ -71,7 +71,7 @@ app.get("/", (req, res) => {
     res.redirect("/urls");
   }
   else {
-    res.redirect("/register")
+    res.redirect("/login")
   }
 });
 
@@ -110,8 +110,12 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => { // this app.get is responsilbe for making sure the shortURL can be used to redirect to the long URL
-  const longURL = urlDatabase[req.params.shortURL]["longURL"];
-  res.redirect(longURL);
+  const redirectURL = urlDatabase[req.params.shortURL]["longURL"];
+  if (redirectURL[0] === "w") {
+    res.redirect(`http://${redirectURL}`)
+  } else {
+    res.redirect(redirectURL);
+  }
 });
 
 app.post("/urls", (req, res) => { // responds to the post requests made by the form in /urls/new
