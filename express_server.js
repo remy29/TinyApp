@@ -59,32 +59,31 @@ const urlsForUser = function(id) {
 const isLoggedIn = function(req) {
   const currentUser = req.cookies["user_id"] ? `${userDB[req.cookies["user_id"]]["email"]}` : "Unregistered Guest";
   return currentUser;
-}
+};
 
 app.get("/urls", (req, res) => { // series of .get methods to render our various pages at their paths, w/ templatevars
   const templateVars = { urls: urlsForUser(req.cookies["user_id"]), user: userDB[req.cookies["user_id"]]};
-  if(req.cookies["user_id"]) {
+  if (req.cookies["user_id"]) {
     res.render("urls_index", templateVars);
   } else {
-    res.redirect("/login")
+    res.redirect("/login");
   }
 });
 
 app.get("/", (req, res) => {
-  if(req.cookies["user_id"]) {
+  if (req.cookies["user_id"]) {
     res.redirect("/urls");
-  }
-  else {
-    res.redirect("/login")
+  } else {
+    res.redirect("/login");
   }
 });
 
 app.get("/urls/new", (req, res) => {
   const templateVars = { user: userDB[req.cookies["user_id"]] };
-  if(req.cookies["user_id"]) {
+  if (req.cookies["user_id"]) {
     res.render("urls_new", templateVars);
   } else {
-    res.redirect("/login")
+    res.redirect("/login");
   }
 });
 
@@ -101,7 +100,7 @@ app.get("/login", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const currentUser = isLoggedIn(req);
   if (!req.cookies["user_id"] || req.cookies["user_id"] !== urlDatabase[req.params.shortURL]["userID"]) {
-    return res.status(400).send(`User: ${currentUser} does not have access to this URL`)
+    return res.status(400).send(`User: ${currentUser} does not have access to this URL`);
   } else {
     const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"], user: userDB[req.cookies["user_id"]]};
     res.render("urls_show", templateVars);
@@ -111,7 +110,7 @@ app.get("/urls/:shortURL", (req, res) => {
 app.get("/u/:shortURL", (req, res) => { // this app.get is responsilbe for making sure the shortURL can be used to redirect to the long URL
   const redirectURL = urlDatabase[req.params.shortURL]["longURL"];
   if (redirectURL[0] === "w" || redirectURL.slice(0, 4) !== "http") {
-    res.redirect(`http://${redirectURL}`)
+    res.redirect(`http://${redirectURL}`);
   } else {
     res.redirect(redirectURL);
   }
@@ -120,7 +119,7 @@ app.get("/u/:shortURL", (req, res) => { // this app.get is responsilbe for makin
 app.post("/urls", (req, res) => { // responds to the post requests made by the form in /urls/new
   const rShortURL = generateRandomString(); // creates a new random short url
   urlDatabase[rShortURL] = { longURL: req.body.longURL, userID: req.cookies["user_id"] }; // updates database
-  console.log(urlDatabase)
+  console.log(urlDatabase);
   res.redirect(302, `/urls/${rShortURL}`); // redirects to the result
 });
 
@@ -135,8 +134,8 @@ app.post("/login", (req, res) => { // posts result of login form submit into coo
   } else if (foundUser.password !== req.body.password) {
     return res.status(403).send('Incorrect password');
   }
-    res.cookie('user_id', foundUser.id);
-    res.redirect('/urls');
+  res.cookie('user_id', foundUser.id);
+  res.redirect('/urls');
 });
 
 app.post("/logout", (req, res) => { // posts result of login form submit into cookie
@@ -166,21 +165,21 @@ app.post("/register", (req, res) => { // posts result of login form submit into 
 app.post("/urls/:shortURL", (req, res) => { //responds to the post request made by delete buttons
   const currentUser = isLoggedIn(req);
   if (!req.cookies["user_id"] || req.cookies["user_id"] !== urlDatabase[req.params.shortURL]["userID"]) {
-    return res.status(400).send(`${currentUser} does not have access to this URL`)
+    return res.status(400).send(`${currentUser} does not have access to this URL`);
   } else {
-      urlDatabase[req.params.shortURL]["longURL"] = req.body.newURL;
-      res.redirect(`/urls`);
-    }
+    urlDatabase[req.params.shortURL]["longURL"] = req.body.newURL;
+    res.redirect(`/urls`);
+  }
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => { //responds to the post request made by new url form
   const currentUser = isLoggedIn(req);
   if (!req.cookies["user_id"] || req.cookies["user_id"] !== urlDatabase[req.params.shortURL]["userID"]) {
-    return res.status(400).send(`${currentUser} does not have access to this URL and cannot delete it!`)
+    return res.status(400).send(`${currentUser} does not have access to this URL and cannot delete it!`);
   } else {
     delete urlDatabase[req.params.shortURL];
     res.redirect(`/urls`);
-  }  
+  }
 });
 
 app.listen(PORT, () => {
