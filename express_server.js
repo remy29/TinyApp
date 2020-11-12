@@ -2,13 +2,18 @@ const express = require("express");  //Lines 1-4 gives express_server.js access 
 const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
-const cookieParser = require("cookie-parser");
+const cookieSession = require("cookie-session");
 const morgan = require('morgan');
 const bcrypt = require('bcrypt');
 
 app.use(morgan("tiny"));
 app.use(bodyParser.urlencoded({extended: true})); //code on lines 7-9 are used to init middleware dependencies
-app.use(cookieParser());
+
+app.use(cookieSession({
+  name: 'session',
+  keys: ['onekey']
+}));
+
 app.set("view engine", "ejs");
 
 const urlDatabase = {
@@ -58,21 +63,21 @@ const urlsForUser = function(id) {
 };
 
 const isLoggedIn = function(req) {
-  const currentUser = req.cookies["user_id"] ? `${userDB[req.cookies["user_id"]]["email"]}` : "Unregistered Guest";
+  const currentUser = req.session["user_id"] ? `${userDB[req.session["user_id"]]["email"]}` : "Unregistered Guest";
   return currentUser;
 };
 
 app.get("/urls", (req, res) => { // series of .get methods to render our various pages at their paths, w/ templatevars
-  const templateVars = { urls: urlsForUser(req.cookies["user_id"]), user: userDB[req.cookies["user_id"]]};
-  if (req.cookies["user_id"]) {
+  const templateVars = { urls: urlsForUser(req.session["user_id"]), user: userDB[req.session["user_id"]]};
+  if (req.session["user_id"]) {
     res.render("urls_index", templateVars);
   } else {
-    res.redirect("/login");
+    res.status(401).send("Unregisted Users do not have access to this page");
   }
 });
 
 app.get("/", (req, res) => {
-  if (req.cookies["user_id"]) {
+  if (req.session["user_id"]) {
     res.redirect("/urls");
   } else {
     res.redirect("/login");
@@ -80,30 +85,30 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  const templateVars = { user: userDB[req.cookies["user_id"]] };
-  if (req.cookies["user_id"]) {
+  const templateVars = { user: userDB[req.session["user_id"]] };
+  if (req.session["user_id"]) {
     res.render("urls_new", templateVars);
   } else {
-    res.redirect("/login");
+    res.status(401).send("Unregisted Users do not have access to this page");
   }
 });
 
 app.get("/register", (req, res) => {
-  const templateVars = { user: userDB[req.cookies["user_id"]] };
+  const templateVars = { user: userDB[req.session["user_id"]] };
   res.render("registration", templateVars);
 });
 
 app.get("/login", (req, res) => {
-  const templateVars = { user: userDB[req.cookies["user_id"]] };
+  const templateVars = { user: userDB[req.session["user_id"]] };
   res.render("login", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   const currentUser = isLoggedIn(req);
-  if (!req.cookies["user_id"] || req.cookies["user_id"] !== urlDatabase[req.params.shortURL]["userID"]) {
+  if (!req.session["user_id"] || req.session["user_id"] !== urlDatabase[req.params.shortURL]["userID"]) {
     return res.status(400).send(`User: ${currentUser} does not have access to this URL`);
   } else {
-    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"], user: userDB[req.cookies["user_id"]]};
+    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"], user: userDB[req.session["user_id"]]};
     res.render("urls_show", templateVars);
   }
 });
@@ -119,8 +124,7 @@ app.get("/u/:shortURL", (req, res) => { // this app.get is responsilbe for makin
 
 app.post("/urls", (req, res) => { // responds to the post requests made by the form in /urls/new
   const rShortURL = generateRandomString(); // creates a new random short url
-  urlDatabase[rShortURL] = { longURL: req.body.longURL, userID: req.cookies["user_id"] }; // updates database
-  console.log(urlDatabase);
+  urlDatabase[rShortURL] = { longURL: req.body.longURL, userID: req.session["user_id"] }; // updates database
   res.redirect(302, `/urls/${rShortURL}`); // redirects to the result
 });
 
@@ -135,12 +139,12 @@ app.post("/login", (req, res) => { // posts result of login form submit into coo
   } else if (!bcrypt.compareSync(req.body.password, hashedPass)) {
     return res.status(403).send('Incorrect password');
   }
-  res.cookie('user_id', foundUser.id);
+  req.session["user_id"] = foundUser.id;
   res.redirect('/urls');
 });
 
 app.post("/logout", (req, res) => { // posts result of login form submit into cookie
-  res.clearCookie("user_id");
+  req.session["user_id"] = null;
   res.redirect(`/login`);
 });
 
@@ -159,15 +163,13 @@ app.post("/register", (req, res) => { // posts result of login form submit into 
     email: req.body.email,
     password: hashedPass
   };
-  console.log(userDB)
-  res.cookie("user_id", newID);
+  req.session["user_id"] = newID;
   res.redirect(`/urls`);
-  
 });
 
 app.post("/urls/:shortURL", (req, res) => { //responds to the post request made by delete buttons
   const currentUser = isLoggedIn(req);
-  if (!req.cookies["user_id"] || req.cookies["user_id"] !== urlDatabase[req.params.shortURL]["userID"]) {
+  if (!req.session["user_id"] || req.session["user_id"] !== urlDatabase[req.params.shortURL]["userID"]) {
     return res.status(400).send(`${currentUser} does not have access to this URL`);
   } else {
     urlDatabase[req.params.shortURL]["longURL"] = req.body.newURL;
@@ -177,7 +179,7 @@ app.post("/urls/:shortURL", (req, res) => { //responds to the post request made 
 
 app.post("/urls/:shortURL/delete", (req, res) => { //responds to the post request made by new url form
   const currentUser = isLoggedIn(req);
-  if (!req.cookies["user_id"] || req.cookies["user_id"] !== urlDatabase[req.params.shortURL]["userID"]) {
+  if (!req.session["user_id"] || req.session["user_id"] !== urlDatabase[req.params.shortURL]["userID"]) {
     return res.status(400).send(`${currentUser} does not have access to this URL and cannot delete it!`);
   } else {
     delete urlDatabase[req.params.shortURL];
