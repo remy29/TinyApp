@@ -46,8 +46,18 @@ const userChecker = function(req) { //checks if user already exists
   return user;
 };
 
+const urlsForUser = function(id) {
+  const foundURLs = {};
+  for (const shortURLs in urlDatabase) {
+    if (urlDatabase[shortURLs]["userID"] === id) {
+      foundURLs[shortURLs] = urlDatabase[shortURLs]["longURL"];
+    }
+  }
+  return foundURLs;
+};
+
 app.get("/urls", (req, res) => { // series of .get methods to render our various pages at their paths, w/ templatevars
-  const templateVars = { urls: urlDatabase, user: userDB[req.cookies["user_id"]]};
+  const templateVars = { urls: urlsForUser(req.cookies["user_id"]), user: userDB[req.cookies["user_id"]]};
   res.render("urls_index", templateVars);
 });
 
