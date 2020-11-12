@@ -56,6 +56,16 @@ app.get("/register", (req, res) => {
     res.render("registration", templateVars);
 });
 
+app.get("/login", (req, res) => {
+    const templateVars = { user: userDB[req.cookies["user_id"]] };
+    res.render("login", templateVars);
+});
+
+app.get("/logout", (req, res) => { // posts result of login form submit into cookie
+  res.clearCookie("user_id");
+  res.redirect(`/login`);
+});
+
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: userDB[req.cookies["user_id"]]};
   res.render("urls_show", templateVars);
@@ -73,13 +83,7 @@ app.post("/urls", (req, res) => { // responds to the post requests made by the f
 });
 
 app.post("/login", (req, res) => { // posts result of login form submit into cookie
-  res.cookie("username", req.body.username);
-  res.redirect(`/urls`);
-});
-
-app.post("/logout", (req, res) => { // posts result of login form submit into cookie
-  res.clearCookie("user_id");
-  res.redirect(`/urls`);
+  
 });
 
 app.post("/register", (req, res) => { // posts result of login form submit into cookie
