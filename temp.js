@@ -23,3 +23,13 @@ const isLoggedIn = function(req) {
   console.log(userDB[req.cookies["user_id"]]["email"])
   return currentUser;
 }
+
+app.post("/urls/:shortURL/delete", (req, res) => { //responds to the post request made by new url form
+  const currentUser = isLoggedIn(req);
+  if (!req.cookies["user_id"] || req.cookies["user_id"] !== urlDatabase[req.params.shortURL]["userID"]) {
+    return res.status(400).send(`${currentUser} does not have access to this URL and cannot delete it!`)
+  } else {
+    delete urlDatabase[req.params.shortURL];
+    res.redirect(`/urls`);
+  }  
+});
