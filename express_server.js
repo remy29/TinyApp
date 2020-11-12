@@ -11,8 +11,8 @@ app.use(cookieParser());
 app.set("view engine", "ejs");
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "abcd12"},
+  "9sm5xK": { longURL: "http://www.google.com", userID: "abcd12"},
 };
 
 const userDB = {
@@ -69,7 +69,6 @@ app.get("/", (req, res) => {
 app.get("/urls/new", (req, res) => {
   const templateVars = { user: userDB[req.cookies["user_id"]] };
   if(req.cookies["user_id"]) {
-
     res.render("urls_new", templateVars);
   } else {
     res.redirect("/login")
@@ -92,18 +91,19 @@ app.get("/logout", (req, res) => { // posts result of login form submit into coo
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: userDB[req.cookies["user_id"]]};
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"], user: userDB[req.cookies["user_id"]]};
   res.render("urls_show", templateVars);
 });
 
 app.get("/u/:shortURL", (req, res) => { // this app.get is responsilbe for making sure the shortURL can be used to redirect to the long URL
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL]["longURL"];
   res.redirect(longURL);
 });
 
 app.post("/urls", (req, res) => { // responds to the post requests made by the form in /urls/new
   const rShortURL = generateRandomString(); // creates a new random short url
-  urlDatabase[rShortURL] = req.body.longURL; // updates database
+  urlDatabase[rShortURL] = { longURL: req.body.longURL, userID: req.cookies["user_id"] }; // updates database
+  console.log(urlDatabase)
   res.redirect(302, `/urls/${rShortURL}`); // redirects to the result
 });
 
@@ -142,7 +142,7 @@ app.post("/register", (req, res) => { // posts result of login form submit into 
 });
 
 app.post("/urls/:shortURL", (req, res) => { //responds to the post request made by delete buttons
-  urlDatabase[req.params.shortURL] = req.body.newURL;
+  urlDatabase[req.params.shortURL]["longURL"] = req.body.newURL;
   res.redirect(`/urls`);
 });
 
