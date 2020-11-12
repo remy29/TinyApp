@@ -63,7 +63,11 @@ const isLoggedIn = function(req) {
 
 app.get("/urls", (req, res) => { // series of .get methods to render our various pages at their paths, w/ templatevars
   const templateVars = { urls: urlsForUser(req.cookies["user_id"]), user: userDB[req.cookies["user_id"]]};
-  res.render("urls_index", templateVars);
+  if(req.cookies["user_id"]) {
+    res.render("urls_index", templateVars);
+  } else {
+    res.redirect("/login")
+  }
 });
 
 app.get("/", (req, res) => {
@@ -111,7 +115,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => { // this app.get is responsilbe for making sure the shortURL can be used to redirect to the long URL
   const redirectURL = urlDatabase[req.params.shortURL]["longURL"];
-  if (redirectURL[0] === "w") {
+  if (redirectURL[0] === "w" || redirectURL.slice(0, 4) !== "http") {
     res.redirect(`http://${redirectURL}`)
   } else {
     res.redirect(redirectURL);
