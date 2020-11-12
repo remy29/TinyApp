@@ -129,10 +129,10 @@ app.post("/login", (req, res) => { // posts result of login form submit into coo
     return res.status(400).send('Email address or password missing');
   }
   let foundUser = userChecker(req, res);
-
+  const hashedPass = userDB[foundUser.id]["password"]
   if (!foundUser) {
     return res.status(403).send('No user with that email found');
-  } else if (foundUser.password !== req.body.password) {
+  } else if (!bcrypt.compareSync(req.body.password, hashedPass)) {
     return res.status(403).send('Incorrect password');
   }
   res.cookie('user_id', foundUser.id);
@@ -146,6 +146,7 @@ app.post("/logout", (req, res) => { // posts result of login form submit into co
 
 app.post("/register", (req, res) => { // posts result of login form submit into cookie
   const newID = generateRandomString();
+  const hashedPass = bcrypt.hashSync(req.body.password, 10);
   if (!req.body.email || !req.body.password) {
     return res.status(400).send('Email address or password missing');
   }
@@ -156,8 +157,9 @@ app.post("/register", (req, res) => { // posts result of login form submit into 
   userDB[newID] = {
     id: newID,
     email: req.body.email,
-    password: req.body.password
+    password: hashedPass
   };
+  console.log(userDB)
   res.cookie("user_id", newID);
   res.redirect(`/urls`);
   
