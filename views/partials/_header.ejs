@@ -13,10 +13,12 @@
     
     <% if(user){ %>
       <h6 style="margin: 0.5em">Logged in as: <%=user.email%></h6>
-      <a href="/logout" class="btn btn-outline-dark active" role="button">Logout</a>
+      <form action="/logout" method="POST">
+        <button type="submit" class="btn btn-outline-dark">Logout</button>
+      </form>
     <% } else { %> 
-      <a href="/login" class="btn btn-outline-dark " role="button" style="margin-right: 15px;">Login</a>
-      <a href="/register" class="btn btn-outline-dark " role="button">Register</a>
+      <a href="/login" class="btn btn-outline-dark" role="button" style="margin-right: 15px;">Login</a>
+      <a href="/register" class="btn btn-outline-dark" role="button">Register</a>
     <% } %>
   </nav>
 </header>

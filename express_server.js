@@ -98,11 +98,6 @@ app.get("/login", (req, res) => {
   res.render("login", templateVars);
 });
 
-app.get("/logout", (req, res) => { // posts result of login form submit into cookie
-  res.clearCookie("user_id");
-  res.redirect(`/login`);
-});
-
 app.get("/urls/:shortURL", (req, res) => {
   const currentUser = isLoggedIn(req);
   if (!req.cookies["user_id"] || req.cookies["user_id"] !== urlDatabase[req.params.shortURL]["userID"]) {
@@ -142,6 +137,11 @@ app.post("/login", (req, res) => { // posts result of login form submit into coo
   }
     res.cookie('user_id', foundUser.id);
     res.redirect('/urls');
+});
+
+app.post("/logout", (req, res) => { // posts result of login form submit into cookie
+  res.clearCookie("user_id");
+  res.redirect(`/login`);
 });
 
 app.post("/register", (req, res) => { // posts result of login form submit into cookie
