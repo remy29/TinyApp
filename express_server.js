@@ -1,27 +1,27 @@
 const express = require("express");  //Lines 1-4 gives express_server.js access to all its required dependencies
 const app = express();
-const PORT = 8080; 
+const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const morgan = require('morgan');
 
 app.use(morgan("tiny"));
 app.use(bodyParser.urlencoded({extended: true})); //code on lines 7-9 are used to init middleware dependencies
-app.use(cookieParser()); 
-app.set("view engine", "ejs"); 
+app.use(cookieParser());
+app.set("view engine", "ejs");
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
-const userDB = { 
+const userDB = {
   "userRandomID": { //exists for example and testing reasons
-    id: "userRandomID", 
-    email: "user@example.com", 
+    id: "userRandomID",
+    email: "user@example.com",
     password: "purple-monkey-dinosaur"
   },
-}
+};
 
 const generateRandomString = function() {  // used to create random 6 character string. creates random index value and pushes character associated to it to a result
   let i = 0;
@@ -36,14 +36,29 @@ const generateRandomString = function() {  // used to create random 6 character 
   return result;
 };
 
+const userChecker = function(req) { //checks if user already exists
+  let user;
+  for (const id in userDB) {
+    if (userDB[id]["email"] === req.body.email) {
+      user = userDB[id];
+    }
+  }
+  return user;
+};
+
+const userChecker2 = function(req) { // Checks if both fields were filled out
+  if (!req.body.email || !req.body.password) {
+    return true;
+  }
+};
+
 app.get("/urls", (req, res) => { // series of .get methods to render our various pages at their paths, w/ templatevars
-  const templateVars = { urls: urlDatabase, user: userDB[req.cookies["user_id"]]}; 
-  console.log(req.cookies["user_id"])
+  const templateVars = { urls: urlDatabase, user: userDB[req.cookies["user_id"]]};
   res.render("urls_index", templateVars);
 });
 
-app.get("/", (req, res) => {  
-  res.redirect("/urls")
+app.get("/", (req, res) => {
+  res.redirect("/urls");
 });
 
 app.get("/urls/new", (req, res) => {
@@ -52,13 +67,13 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-    const templateVars = { user: userDB[req.cookies["user_id"]] };
-    res.render("registration", templateVars);
+  const templateVars = { user: userDB[req.cookies["user_id"]] };
+  res.render("registration", templateVars);
 });
 
 app.get("/login", (req, res) => {
-    const templateVars = { user: userDB[req.cookies["user_id"]] };
-    res.render("login", templateVars);
+  const templateVars = { user: userDB[req.cookies["user_id"]] };
+  res.render("login", templateVars);
 });
 
 app.get("/logout", (req, res) => { // posts result of login form submit into cookie
@@ -83,27 +98,37 @@ app.post("/urls", (req, res) => { // responds to the post requests made by the f
 });
 
 app.post("/login", (req, res) => { // posts result of login form submit into cookie
-  
+  if (userChecker2(req) === true) {
+    return res.status(400).send('Email address or password missing');
+  }
+  let foundUser = userChecker(req, res);
+
+  if (!foundUser) {
+    return res.status(403).send('No user with that email found');
+  } else if (foundUser.password !== req.body.password) {
+    return res.status(403).send('incorrect password');
+  }
+    res.cookie('user_id', foundUser.id);
+    res.redirect('/urls');
 });
 
 app.post("/register", (req, res) => { // posts result of login form submit into cookie
   const newID = generateRandomString();
-  if (!req.body.email || !req.body.password) {
-    res.status(400).send('Error! did not entre email or password.');
+  if (userChecker2(req, res) === true) {
+    return res.status(400).send('Email address or password missing');
   }
-  for (const id in userDB) {
-    if (userDB[id]["email"] === req.body.email) {
-      res.status(400).send('Email address already in use')
-    }
+  let foundUser = userChecker(req, res);
+  if (foundUser) {
+    return res.status(400).send('Email address already in use');
   }
   userDB[newID] = {
     id: newID,
     email: req.body.email,
     password: req.body.password
-  }
-  res.cookie("user_id", newID)
-  
+  };
+  res.cookie("user_id", newID);
   res.redirect(`/urls`);
+  
 });
 
 app.post("/urls/:shortURL", (req, res) => { //responds to the post request made by delete buttons
