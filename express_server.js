@@ -84,12 +84,21 @@ app.post("/logout", (req, res) => { // posts result of login form submit into co
 
 app.post("/register", (req, res) => { // posts result of login form submit into cookie
   const newID = generateRandomString();
+  if (!req.body.email || !req.body.password) {
+    res.status(400).send('Error! did not entre email or password.');
+  }
+  for (const id in userDB) {
+    if (userDB[id]["email"] === req.body.email) {
+      res.status(400).send('Email address already in use')
+    }
+  }
   userDB[newID] = {
     id: newID,
     email: req.body.email,
     password: req.body.password
   }
   res.cookie("user_id", newID)
+  
   res.redirect(`/urls`);
 });
 
