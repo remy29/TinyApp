@@ -46,12 +46,6 @@ const userChecker = function(req) { //checks if user already exists
   return user;
 };
 
-const userChecker2 = function(req) { // Checks if both fields were filled out
-  if (!req.body.email || !req.body.password) {
-    return true;
-  }
-};
-
 app.get("/urls", (req, res) => { // series of .get methods to render our various pages at their paths, w/ templatevars
   const templateVars = { urls: urlDatabase, user: userDB[req.cookies["user_id"]]};
   res.render("urls_index", templateVars);
@@ -108,7 +102,7 @@ app.post("/urls", (req, res) => { // responds to the post requests made by the f
 });
 
 app.post("/login", (req, res) => { // posts result of login form submit into cookie
-  if (userChecker2(req) === true) {
+  if (!req.body.email || !req.body.password) {
     return res.status(400).send('Email address or password missing');
   }
   let foundUser = userChecker(req, res);
@@ -124,7 +118,7 @@ app.post("/login", (req, res) => { // posts result of login form submit into coo
 
 app.post("/register", (req, res) => { // posts result of login form submit into cookie
   const newID = generateRandomString();
-  if (userChecker2(req, res) === true) {
+  if (!req.body.email || !req.body.password) {
     return res.status(400).send('Email address or password missing');
   }
   let foundUser = userChecker(req, res);
