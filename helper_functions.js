@@ -20,7 +20,7 @@ const userChecker = function (email, database) { //checks if user already exists
   }
   return user;
 };
-userChecker(req.body.email, userDB);
+
 
 const urlsForUser = function (id, database) {
   const foundURLs = {};
@@ -31,19 +31,15 @@ const urlsForUser = function (id, database) {
   }
   return foundURLs;
 };
-urlsForUser(req.session["user_id"], urlDatabase)
+
 
 const isLoggedIn = function (id, database) {
   const currentUser = id ? `${database[id]["email"]}` : "Unregistered Guest";
   return currentUser;
 };
-isLoggedIn(req.session["user_id"], userDB)
+
 
 module.exports = { generateRandomString, userChecker, urlsForUser, isLoggedIn }
 
 
 
-const generateRandomString = require('./helper_functions').generateRandomString
-const userChecker = require('./helper_functions').userChecker
-const urlsForUser = require('./helper_functions').urlsForUser
-const isLoggedIn = require('./helper_functions').isLoggedIn

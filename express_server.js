@@ -5,6 +5,10 @@ const bodyParser = require("body-parser");
 const cookieSession = require("cookie-session");
 const morgan = require('morgan');
 const bcrypt = require('bcrypt');
+const generateRandomString = require('./helper_functions').generateRandomString
+const userChecker = require('./helper_functions').userChecker
+const urlsForUser = require('./helper_functions').urlsForUser
+const isLoggedIn = require('./helper_functions').isLoggedIn
 
 app.use(morgan("tiny"));
 app.use(bodyParser.urlencoded({extended: true})); //code on lines 7-9 are used to init middleware dependencies
@@ -20,46 +24,8 @@ const urlDatabase = {};
 
 const userDB = {};
 
-const generateRandomString = function() {  // used to create random 6 character string. creates random index value and pushes character associated to it to a result
-  let i = 0;
-  let result = "";
-  let charset = "0123456789abcdefghijklmnopqrstuvwxyz";
-  do {
-    let y = Math.floor(Math.random() * 36);
-    result += charset[y];
-    i++;
-  }
-  while (i < 6);
-  return result;
-};
-
-const userChecker = function(req) { //checks if user already exists
-  let user;
-  for (const id in userDB) {
-    if (userDB[id]["email"] === req.body.email) {
-      user = userDB[id];
-    }
-  }
-  return user;
-};
-
-const urlsForUser = function(id) {
-  const foundURLs = {};
-  for (const shortURLs in urlDatabase) {
-    if (urlDatabase[shortURLs]["userID"] === id) {
-      foundURLs[shortURLs] = urlDatabase[shortURLs]["longURL"];
-    }
-  }
-  return foundURLs;
-};
-
-const isLoggedIn = function(req) {
-  const currentUser = req.session["user_id"] ? `${userDB[req.session["user_id"]]["email"]}` : "Unregistered Guest";
-  return currentUser;
-};
-
 app.get("/urls", (req, res) => { // series of .get methods to render our various pages at their paths, w/ templatevars
-  const templateVars = { urls: urlsForUser(req.session["user_id"]), user: userDB[req.session["user_id"]]};
+  const templateVars = { urls: urlsForUser(req.session["user_id"], urlDatabase), user: userDB[req.session["user_id"]]};
   if (req.session["user_id"]) {
     res.render("urls_index", templateVars);
   } else {
@@ -95,7 +61,7 @@ app.get("/login", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const currentUser = isLoggedIn(req);
+  const currentUser = isLoggedIn(req.session["user_id"], userDB);
   if (!req.session["user_id"] || req.session["user_id"] !== urlDatabase[req.params.shortURL]["userID"]) {
     return res.status(400).send(`User: ${currentUser} does not have access to this URL`);
   } else {
@@ -124,7 +90,7 @@ app.post("/login", (req, res) => { // posts result of login form submit into coo
     return res.status(400).send('Email address or password missing');
   }
 
-  let foundUser = userChecker(req, res);
+  let foundUser = userChecker(req.body.email, userDB);
   
   if (!foundUser) {
     return res.status(403).send('No user with that email found');
@@ -153,7 +119,7 @@ app.post("/register", (req, res) => { // posts result of login form submit into 
     return res.status(400).send('Email address or password missing');
   }
   
-  let foundUser = userChecker(req, res);
+  let foundUser = userChecker(req.body.email, userDB);
   if (foundUser) {
     return res.status(400).send('Email address already in use');
   }
@@ -169,7 +135,7 @@ app.post("/register", (req, res) => { // posts result of login form submit into 
 });
 
 app.post("/urls/:shortURL", (req, res) => { //responds to the post request made by delete buttons
-  const currentUser = isLoggedIn(req);
+  const currentUser = isLoggedIn(req.session["user_id"], userDB);
   if (!req.session["user_id"] || req.session["user_id"] !== urlDatabase[req.params.shortURL]["userID"]) {
     return res.status(400).send(`${currentUser} does not have access to this URL`);
   } else {
@@ -179,7 +145,7 @@ app.post("/urls/:shortURL", (req, res) => { //responds to the post request made 
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => { //responds to the post request made by new url form
-  const currentUser = isLoggedIn(req);
+  const currentUser = isLoggedIn(req.session["user_id"], userDB);
   if (!req.session["user_id"] || req.session["user_id"] !== urlDatabase[req.params.shortURL]["userID"]) {
     return res.status(400).send(`${currentUser} does not have access to this URL and cannot delete it!`);
   } else {
