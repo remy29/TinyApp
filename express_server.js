@@ -16,18 +16,9 @@ app.use(cookieSession({
 
 app.set("view engine", "ejs");
 
-const urlDatabase = {
-  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "abcd12"},
-  "9sm5xK": { longURL: "http://www.google.com", userID: "abcd12"},
-};
+const urlDatabase = {};
 
-const userDB = {
-  "userRandomID": { //exists for example and testing reasons
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur"
-  },
-};
+const userDB = {};
 
 const generateRandomString = function() {  // used to create random 6 character string. creates random index value and pushes character associated to it to a result
   let i = 0;
@@ -132,13 +123,19 @@ app.post("/login", (req, res) => { // posts result of login form submit into coo
   if (!req.body.email || !req.body.password) {
     return res.status(400).send('Email address or password missing');
   }
+
   let foundUser = userChecker(req, res);
-  const hashedPass = userDB[foundUser.id]["password"]
+  
   if (!foundUser) {
     return res.status(403).send('No user with that email found');
-  } else if (!bcrypt.compareSync(req.body.password, hashedPass)) {
+    
+  } 
+  
+  const hashedPass = userDB[foundUser.id]["password"]
+  if (!bcrypt.compareSync(req.body.password, hashedPass)) {
     return res.status(403).send('Incorrect password');
   }
+
   req.session["user_id"] = foundUser.id;
   res.redirect('/urls');
 });
@@ -151,18 +148,22 @@ app.post("/logout", (req, res) => { // posts result of login form submit into co
 app.post("/register", (req, res) => { // posts result of login form submit into cookie
   const newID = generateRandomString();
   const hashedPass = bcrypt.hashSync(req.body.password, 10);
+
   if (!req.body.email || !req.body.password) {
     return res.status(400).send('Email address or password missing');
   }
+  
   let foundUser = userChecker(req, res);
   if (foundUser) {
     return res.status(400).send('Email address already in use');
   }
+
   userDB[newID] = {
     id: newID,
     email: req.body.email,
     password: hashedPass
   };
+
   req.session["user_id"] = newID;
   res.redirect(`/urls`);
 });
