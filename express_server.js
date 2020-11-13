@@ -43,7 +43,7 @@ app.get('/urls/new', (req, res) => {
   if (req.session['user_id']) {
     res.render('urls_new', templateVars);
   } else {
-    res.status(401).send('Unregisted Users do not have access to this page');
+    res.redirect('/login')
   }
 });
 
@@ -61,6 +61,10 @@ app.get('/login', (req, res) => {
 
 app.get('/urls/:shortURL', (req, res) => {
   const currentUser = isLoggedIn(req.session['user_id'], userDB);
+  
+  if (!urlDatabase[req.params.shortURL]) {
+    res.status(404).send('URL not found')
+  }
 
   if (!req.session['user_id'] || req.session['user_id'] !== urlDatabase[req.params.shortURL]['userID']) {
 
@@ -161,7 +165,7 @@ app.post('/urls/:shortURL/delete', (req, res) => { //responds to the post reques
 
   if (!req.session['user_id'] || req.session['user_id'] !== urlDatabase[req.params.shortURL]['userID']) {
     return res.status(400).send(`${currentUser} does not have access to this URL and cannot delete it!`);
-    
+
   } else {
     delete urlDatabase[req.params.shortURL];
     res.redirect(`/urls`);
