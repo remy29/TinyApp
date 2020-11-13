@@ -5,10 +5,10 @@ const bodyParser = require("body-parser");
 const cookieSession = require("cookie-session");
 const morgan = require('morgan');
 const bcrypt = require('bcrypt');
-const generateRandomString = require('./helper_functions').generateRandomString
-const getUserByEmail = require('./helper_functions').getUserByEmail
-const urlsForUser = require('./helper_functions').urlsForUser
-const isLoggedIn = require('./helper_functions').isLoggedIn
+const {generateRandomString} = require('./helper_functions')
+const {getUserByEmail} = require('./helper_functions')
+const {urlsForUser} = require('./helper_functions')
+const {isLoggedIn} = require('./helper_functions')
 
 app.use(morgan("tiny"));
 app.use(bodyParser.urlencoded({extended: true})); //code on lines 7-9 are used to init middleware dependencies
