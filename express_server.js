@@ -6,7 +6,7 @@ const cookieSession = require("cookie-session");
 const morgan = require('morgan');
 const bcrypt = require('bcrypt');
 const generateRandomString = require('./helper_functions').generateRandomString
-const userChecker = require('./helper_functions').userChecker
+const getUserByEmail = require('./helper_functions').getUserByEmail
 const urlsForUser = require('./helper_functions').urlsForUser
 const isLoggedIn = require('./helper_functions').isLoggedIn
 
@@ -90,7 +90,7 @@ app.post("/login", (req, res) => { // posts result of login form submit into coo
     return res.status(400).send('Email address or password missing');
   }
 
-  let foundUser = userChecker(req.body.email, userDB);
+  let foundUser = getUserByEmail(req.body.email, userDB);
   
   if (!foundUser) {
     return res.status(403).send('No user with that email found');
@@ -119,7 +119,7 @@ app.post("/register", (req, res) => { // posts result of login form submit into 
     return res.status(400).send('Email address or password missing');
   }
   
-  let foundUser = userChecker(req.body.email, userDB);
+  let foundUser = getUserByEmail(req.body.email, userDB);
   if (foundUser) {
     return res.status(400).send('Email address already in use');
   }

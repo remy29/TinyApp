@@ -11,7 +11,7 @@ const generateRandomString = function () {  // used to create random 6 character
   return result;
 };
 
-const userChecker = function (email, database) { //checks if user already exists
+const getUserByEmail = function (email, database) { //checks if user already exists
   let user;
   for (const id in database) {
     if (database[id]["email"] === email) {
@@ -39,7 +39,7 @@ const isLoggedIn = function (id, database) {
 };
 
 
-module.exports = { generateRandomString, userChecker, urlsForUser, isLoggedIn }
+module.exports = { generateRandomString, getUserByEmail, urlsForUser, isLoggedIn }
 
 
 
