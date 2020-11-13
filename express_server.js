@@ -1,4 +1,5 @@
 const express = require('express');  //Lines 1-7 gives express_server.js access to all its required dependencies
+const methodOverride = require('method-override');
 const app = express();               //8-11 import all of the helper functions
 const PORT = 8080;
 const bodyParser = require('body-parser');
@@ -10,6 +11,7 @@ const {getUserByEmail} = require('./helper_functions');
 const {urlsForUser} = require('./helper_functions');
 const {isLoggedIn} = require('./helper_functions');
 
+app.use(methodOverride('_method'));
 app.use(morgan('tiny')); // Lines 13-17 initialize various middleware dependencies
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({ name: 'session', keys: ['onekey'] }));
@@ -135,7 +137,7 @@ app.post('/login', (req, res) => { // posts result of login form submit into coo
   res.redirect('/urls');
 });
 
-app.post('/logout', (req, res) => { // logs user out of current session
+app.delete('/logout', (req, res) => { // logs user out of current session
   req.session['user_id'] = null;
   res.redirect(`/login`);
 });
@@ -164,7 +166,7 @@ app.post('/register', (req, res) => { // posts result of register form and updat
   res.redirect(`/urls`);
 });
 
-app.post('/urls/:shortURL', (req, res) => { //responds to the post request made by edit button on /urls, updates databes
+app.put('/urls/:shortURL', (req, res) => { //responds to the post request made by edit button on /urls, updates databes
   const currentUser = isLoggedIn(req.session['user_id'], userDB);
 
   if (!req.session['user_id'] || req.session['user_id'] !== urlDatabase[req.params.shortURL]['userID']) {
