@@ -11,7 +11,7 @@ const {urlsForUser} = require('./helper_functions');
 const {isLoggedIn} = require('./helper_functions');
 
 app.use(morgan('tiny')); // Lines 13-17 initialize various middleware dependencies
-app.use(bodyParser.urlencoded({extended: true})); 
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({ name: 'session', keys: ['onekey'] }));
 
 app.set('view engine', 'ejs');
@@ -43,13 +43,13 @@ app.get('/urls/new', (req, res) => {
   if (req.session['user_id']) {
     res.render('urls_new', templateVars);
   } else {
-    res.redirect('/login')
+    res.redirect('/login');
   }
 });
 
 app.get('/register', (req, res) => {
-  if(req.session['user_id']) {
-    return res.redirect('/urls')
+  if (req.session['user_id']) {
+    return res.redirect('/urls');
   }
   
   const templateVars = { user: userDB[req.session['user_id']] };
@@ -58,9 +58,8 @@ app.get('/register', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-
-  if(req.session['user_id']) {
-    return res.redirect('/urls')
+  if (req.session['user_id']) {
+    return res.redirect('/urls');
   }
 
   const templateVars = { user: userDB[req.session['user_id']] };
@@ -72,7 +71,7 @@ app.get('/urls/:shortURL', (req, res) => {
   const currentUser = isLoggedIn(req.session['user_id'], userDB);
 
   if (!urlDatabase[req.params.shortURL]) {
-    res.status(404).send('URL not found')
+    res.status(404).send('URL not found');
   }
 
   if (!req.session['user_id'] || req.session['user_id'] !== urlDatabase[req.params.shortURL]['userID']) {
@@ -88,7 +87,7 @@ app.get('/urls/:shortURL', (req, res) => {
 
 app.get('/u/:shortURL', (req, res) => { // this app.get is responsilbe for making sure the shortURL can be used to redirect to the long URL
   if (!urlDatabase[req.params.shortURL]) {
-    res.status(404).send('URL not found')
+    res.status(404).send('URL not found');
   }
 
   const redirectURL = urlDatabase[req.params.shortURL]['longURL'];
