@@ -54,6 +54,11 @@ app.get('/register', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
+  
+  if(req.session['user_id']) {
+    return res.redirect('/urls')
+  }
+
   const templateVars = { user: userDB[req.session['user_id']] };
 
   res.render('login', templateVars);
@@ -78,7 +83,6 @@ app.get('/urls/:shortURL', (req, res) => {
 });
 
 app.get('/u/:shortURL', (req, res) => { // this app.get is responsilbe for making sure the shortURL can be used to redirect to the long URL
-
   if (!urlDatabase[req.params.shortURL]) {
     res.status(404).send('URL not found')
   }
@@ -96,10 +100,9 @@ app.post('/urls', (req, res) => { // responds to the post requests made by the f
   const rShortURL = generateRandomString(); // creates a new random short url
   const currentUser = isLoggedIn(req.session['user_id'], userDB);
 
-  if (!req.session['user_id'] || req.session['user_id'] !== urlDatabase[req.params.shortURL]['userID']) {
+  if (!req.session['user_id']) {
 
-    return res.status(400).send(`${currentUser} does not have access to this URL`);
-
+    return res.status(400).send(`${currentUser} does not have access`);
   }
 
   urlDatabase[rShortURL] = { longURL: req.body.longURL, userID: req.session['user_id'] }; // updates database
