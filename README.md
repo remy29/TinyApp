@@ -40,7 +40,6 @@ TinyApp is a student developed full stack web application built with Node and Ex
 
 ## Roadmap
 
-- Implementing analytics
 - Creating seperate files for app.post and app.get routes
 
 ## Bugs
@@ -48,6 +47,6 @@ TinyApp is a student developed full stack web application built with Node and Ex
 - No yet discovered **major** bugs
 - Can cause errors when server is reset but cookies arent cleared (this can mostly be side stepped either by clearing to cookies and/or logging out after reset)
 
-###### Version 1.0.0
+###### Version 1.5.0
 
 
