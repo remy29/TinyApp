@@ -11,7 +11,7 @@ TinyApp is a student developed full stack web application built with Node and Ex
 !["URLs Page Populated with a Variety of URL Styles"](https://github.com/remy29/tinyapp/blob/master/docs/urls-page.png?raw=true)
 
 #### URL Edit Page
-!["URL Edit Page"](https://github.com/remy29/tinyapp/blob/master/docs/url-edit-page.png?raw=true)
+!["URL Edit Page"](https://github.com/remy29/tinyapp/blob/analytics/docs/urls-edit-page.png?raw=true)
 
 ## Dependencies
 
