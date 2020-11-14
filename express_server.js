@@ -104,7 +104,7 @@ app.get('/u/:shortURL', (req, res) => { // this app.get is responsilbe for makin
   const redirectURL = urlDatabase[req.params.shortURL]['longURL'];
   visitorObjMaker(req.params.shortURL, visitorDB);
   infoTagger(req.params.shortURL, req.session['user_id'], visitorDB)
-  //console.log(visitorDB[req.params.shortURL]['info'])
+  console.log(visitorDB[req.params.shortURL])
 
   if (!cookieChecker(req.params.shortURL, req.session['user_id'], visitorDB) || visitorDB[req.params.shortURL]['visits'] === 0) {
     visitorDB[req.params.shortURL]['uniqueVisits'] ++;
@@ -127,7 +127,7 @@ app.post('/urls', (req, res) => { // responds to the post requests made by the f
 
     return res.status(400).send(`${currentUser} does not have access`);
   }
-
+  visitorObjMaker(rShortURL, visitorDB);
   urlDatabase[rShortURL] = { longURL: req.body.longURL, userID: req.session['user_id'] }; // updates database
 
   res.redirect(302, `/urls/${rShortURL}`); // redirects to the result

@@ -1,7 +1,8 @@
+const { generateRandomString } = require("./helper_functions");
+
 const cookieChecker = function (url, cookie, dataBase) {
   let cookieFound = false;
       for (const tags of dataBase[url]['info']) {
-        console.log(tags[1])
         if (tags[1] === cookie) {
           cookieFound = true;
         }
@@ -10,7 +11,8 @@ const cookieChecker = function (url, cookie, dataBase) {
 }
 
 const infoTagger = function (url, id, dataBase) {
-  dataBase[url]['info'].push([new Date().toString().slice(0, 24), id])
+  const visitorID = generateRandomString();
+  dataBase[url]['info'].push([new Date().toString().slice(0, 24), id, visitorID])
 }
 
 const visitorObjMaker = function(url, dataBase) {
@@ -31,7 +33,6 @@ const visitorDB = {
   },
 }
 
-/* visitorObjMaker('1234', visitorDB)
-console.log(visitorDB) */
+
 
 module.exports = { cookieChecker, infoTagger, visitorObjMaker }
