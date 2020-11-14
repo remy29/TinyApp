@@ -196,7 +196,7 @@ app.put('/urls/:shortURL', (req, res) => { //responds to the post request made b
   }
 });
 
-app.post('/urls/:shortURL/delete', (req, res) => { //responds to the post request made by delete button on /urls, updates databes
+app.delete('/urls/:shortURL/delete', (req, res) => { //responds to the post request made by delete button on /urls, updates databes
   const currentUser = isLoggedIn(req.session['user_id'], userDB);
 
   if (!req.session['user_id'] || req.session['user_id'] !== urlDatabase[req.params.shortURL]['userID']) {
