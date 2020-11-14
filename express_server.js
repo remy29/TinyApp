@@ -126,7 +126,7 @@ app.post('/urls', (req, res) => { // responds to the post requests made by the f
   }
 
   visitorObjMaker(rShortURL, visitorDB); // initializes new object for shortURL in visitorDB
-  const timeStamp = new Date().toString().slice(0, 24);
+  const timeStamp = new Date().toString().slice(0, 24); // sets date url was created
 
   urlDatabase[rShortURL] = { longURL: req.body.longURL, userID: req.session['user_id'], time: timeStamp}; // updates database
 
