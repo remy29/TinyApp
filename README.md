@@ -21,6 +21,7 @@ TinyApp is a student developed full stack web application built with Node and Ex
 - bcrypt
 - body-parser
 - cookie-session
+- method-override
 
 ## Getting Started
 
