@@ -36,6 +36,8 @@ TinyApp is a student developed full stack web application built with Node and Ex
   * Mac: hold option + command + i to access cookies
   * Windows/Linux:  CTRL + Shift + i
 
+- For updated analytics to show please refresh page
+
 ## Roadmap
 
 - Implementing analytics

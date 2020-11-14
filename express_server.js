@@ -21,6 +21,15 @@ app.set('view engine', 'ejs');
 const urlDatabase = {};
 const userDB = {};
 
+const visitorDB = {
+
+}
+
+const { cookieChecker } = require('./test')
+const { infoTagger } = require('./test')
+const { visitorObjMaker } = require('./test')
+
+
 app.get('/urls', (req, res) => { // lines 22-67 of .get methods to render our various pages at their paths, w/ templatevars
   const templateVars = { urls: urlsForUser(req.session['user_id'], urlDatabase), user: userDB[req.session['user_id']]};
 
@@ -81,7 +90,7 @@ app.get('/urls/:shortURL', (req, res) => {
     return res.status(400).send(`User: ${currentUser} does not have access to this URL`);
 
   } else {
-    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]['longURL'], user: userDB[req.session['user_id']]};
+    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]['longURL'], user: userDB[req.session['user_id']], visitors: visitorDB};
 
     res.render('urls_show', templateVars);
   }
@@ -93,10 +102,19 @@ app.get('/u/:shortURL', (req, res) => { // this app.get is responsilbe for makin
   }
 
   const redirectURL = urlDatabase[req.params.shortURL]['longURL'];
+  visitorObjMaker(req.params.shortURL, visitorDB);
+  infoTagger(req.params.shortURL, req.session['user_id'], visitorDB)
+  //console.log(visitorDB[req.params.shortURL]['info'])
+
+  if (!cookieChecker(req.params.shortURL, req.session['user_id'], visitorDB) || visitorDB[req.params.shortURL]['visits'] === 0) {
+    visitorDB[req.params.shortURL]['uniqueVisits'] ++;
+  } 
 
   if (redirectURL[0] === 'w' || redirectURL.slice(0, 4) !== 'http') {
+    visitorDB[req.params.shortURL]['visits'] ++;
     res.redirect(`http://${redirectURL}`);
   } else {
+    visitorDB[req.params.shortURL]['visits'] ++;
     res.redirect(redirectURL);
   }
 });
