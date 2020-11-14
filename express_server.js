@@ -26,7 +26,7 @@ const userDB = {};
 const visitorDB = {};
 
 app.get('/urls', (req, res) => { // lines 22-67 of .get methods to render our various pages at their paths, w/ templatevars
-  const templateVars = { urls: urlsForUser(req.session['user_id'], urlDatabase), user: userDB[req.session['user_id']]};
+  const templateVars = { urls: urlsForUser(req.session['user_id'], urlDatabase), user: userDB[req.session['user_id']], visitors: visitorDB, data: urlDatabase};
 
   if (req.session['user_id']) {
     res.render('urls_index', templateVars);
@@ -126,7 +126,9 @@ app.post('/urls', (req, res) => { // responds to the post requests made by the f
   }
 
   visitorObjMaker(rShortURL, visitorDB); // initializes new object for shortURL in visitorDB
-  urlDatabase[rShortURL] = { longURL: req.body.longURL, userID: req.session['user_id'] }; // updates database
+  const timeStamp = new Date().toString().slice(0, 24);
+
+  urlDatabase[rShortURL] = { longURL: req.body.longURL, userID: req.session['user_id'], time: timeStamp}; // updates database
 
   res.redirect(302, `/urls/${rShortURL}`); // redirects to the result
 });
