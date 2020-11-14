@@ -1,6 +1,6 @@
-const express = require('express');  //Lines 1-7 gives express_server.js access to all its required dependencies
+const express = require('express');  //Lines 1-15 gives express_server.js access to all its required dependencies
 const methodOverride = require('method-override');
-const app = express();               //8-11 import all of the helper functions
+const app = express();
 const PORT = 8080;
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
@@ -10,6 +10,9 @@ const {generateRandomString} = require('./helper_functions');
 const {getUserByEmail} = require('./helper_functions');
 const {urlsForUser} = require('./helper_functions');
 const {isLoggedIn} = require('./helper_functions');
+const { cookieChecker } = require('./stretch_helpers');
+const { infoTagger } = require('./stretch_helpers');
+const { visitorObjMaker } = require('./stretch_helpers');
 
 app.use(methodOverride('_method'));
 app.use(morgan('tiny')); // Lines 13-17 initialize various middleware dependencies
@@ -20,15 +23,7 @@ app.set('view engine', 'ejs');
 
 const urlDatabase = {};
 const userDB = {};
-
-const visitorDB = {
-
-}
-
-const { cookieChecker } = require('./test')
-const { infoTagger } = require('./test')
-const { visitorObjMaker } = require('./test')
-
+const visitorDB = {};
 
 app.get('/urls', (req, res) => { // lines 22-67 of .get methods to render our various pages at their paths, w/ templatevars
   const templateVars = { urls: urlsForUser(req.session['user_id'], urlDatabase), user: userDB[req.session['user_id']]};
@@ -79,7 +74,7 @@ app.get('/login', (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req, res) => {
-  const currentUser = isLoggedIn(req.session['user_id'], userDB);
+  const currentUser = isLoggedIn(req.session['user_id'], userDB); //77-87 and similar lines in other methods are error handling for edge cases
 
   if (!urlDatabase[req.params.shortURL]) {
     res.status(404).send('URL not found');
@@ -102,17 +97,19 @@ app.get('/u/:shortURL', (req, res) => { // this app.get is responsilbe for makin
   }
 
   const redirectURL = urlDatabase[req.params.shortURL]['longURL'];
-  visitorObjMaker(req.params.shortURL, visitorDB);
-  infoTagger(req.params.shortURL, req.session['user_id'], visitorDB)
-  console.log(visitorDB[req.params.shortURL])
+
+  visitorObjMaker(req.params.shortURL, visitorDB); // see stretch_helpers
+  infoTagger(req.params.shortURL, req.session['user_id'], visitorDB);
+  
 
   if (!cookieChecker(req.params.shortURL, req.session['user_id'], visitorDB) || visitorDB[req.params.shortURL]['visits'] === 0) {
-    visitorDB[req.params.shortURL]['uniqueVisits'] ++;
-  } 
+    visitorDB[req.params.shortURL]['uniqueVisits'] ++; // increments unique visits on urls_show.ejs
+  }
 
-  if (redirectURL[0] === 'w' || redirectURL.slice(0, 4) !== 'http') {
-    visitorDB[req.params.shortURL]['visits'] ++;
+  if (redirectURL[0] === 'w' || redirectURL.slice(0, 4) !== 'http') { // if else statement use to catch variances in user's inputs
+    visitorDB[req.params.shortURL]['visits'] ++; //increments visits on urls_show.ejs page
     res.redirect(`http://${redirectURL}`);
+
   } else {
     visitorDB[req.params.shortURL]['visits'] ++;
     res.redirect(redirectURL);
@@ -127,7 +124,8 @@ app.post('/urls', (req, res) => { // responds to the post requests made by the f
 
     return res.status(400).send(`${currentUser} does not have access`);
   }
-  visitorObjMaker(rShortURL, visitorDB);
+
+  visitorObjMaker(rShortURL, visitorDB); // initializes new object for shortURL in visitorDB
   urlDatabase[rShortURL] = { longURL: req.body.longURL, userID: req.session['user_id'] }; // updates database
 
   res.redirect(302, `/urls/${rShortURL}`); // redirects to the result
@@ -147,7 +145,7 @@ app.post('/login', (req, res) => { // posts result of login form submit into coo
   
   const hashedPass = userDB[foundUser.id]['password'];
 
-  if (!bcrypt.compareSync(req.body.password, hashedPass)) {
+  if (!bcrypt.compareSync(req.body.password, hashedPass)) { // validates hashed password
     return res.status(403).send('Incorrect password');
   }
 
